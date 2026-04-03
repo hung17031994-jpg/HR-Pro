@@ -263,17 +263,17 @@
             const verifiedWidth = ctx.measureText(verifiedText).width;
             const idWidth = ctx.measureText(idText).width;
             
-            // THIẾT LẬP KÍCH THƯỚC KHIÊN (Không đổi chiều cao tổng)
-            const sW = 24 * rightScale; 
-            const sH = 24.5 * rightScale; 
+            // THIẾT LẬP KÍCH THƯỚC KHIÊN (Đã thu nhỏ thêm 30%)
+            const sW = 15.5 * rightScale; // Bề rộng
+            const sH = 16.0 * rightScale; // Chiều cao
             
             // CÁC CHÓP ĐƯỢC HẠ CỰC KỲ THẤP VÀ MỀM MẠI
-            const midPeakOffset = 0 * rightScale;     // Đỉnh chóp giữa chạm đúng viền trên (cao nhất)
-            const peakOffset = 1.5 * rightScale;      // 2 chóp bên chỉ thấp hơn chóp giữa xíu xiu
-            const valleyDepth = 2.5 * rightScale;     // Rãnh giữa rất nông, tạo thành lượn sóng êm ái
+            const midPeakOffset = 0 * rightScale;     
+            const peakOffset = 1.0 * rightScale;      
+            const valleyDepth = 1.8 * rightScale;     
 
-            // Tọa độ bù trừ để giữ nguyên tuyệt đối vị trí cũ của khiên
-            const shieldYOffset = -3.25 * rightScale;
+            // Tọa độ bù trừ để giữ nguyên tuyệt đối vị trí thẳng hàng với text
+            const shieldYOffset = -2.5 * rightScale;
 
             const totalWidth = sW + spaceWidth + idWidth + spaceWidth + verifiedWidth;
 
@@ -298,7 +298,7 @@
             
             ctx.lineJoin = 'round'; // Làm bo góc mượt đỉnh chóp
             ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-            ctx.lineWidth = 1.8 * rightScale; 
+            ctx.lineWidth = 1.5 * rightScale; // Nét thu nhỏ lại cho thanh mảnh
             ctx.stroke();
 
             // 2. VẼ DẤU TICK (✓) BÊN TRONG KHIÊN
@@ -309,7 +309,7 @@
             
             ctx.lineCap = 'round';   
             ctx.lineJoin = 'round';  
-            ctx.lineWidth = 2.0 * rightScale; 
+            ctx.lineWidth = 1.8 * rightScale; // Nét dấu tick cũng thu nhỏ lại
             ctx.stroke();
             
             // Khôi phục mặc định nét cọ

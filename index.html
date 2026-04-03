@@ -262,47 +262,73 @@
             
             const verifiedWidth = ctx.measureText(verifiedText).width;
             const idWidth = ctx.measureText(idText).width;
-            const shieldW = 18 * rightScale;
-            const shieldH = 22 * rightScale;
+            
+            // THIẾT LẬP KÍCH THƯỚC KHIÊN (Không đổi chiều cao tổng)
+            const sW = 24 * rightScale; 
+            const sH = 24.5 * rightScale; 
+            
+            // CÁC CHÓP ĐƯỢC HẠ CỰC KỲ THẤP VÀ MỀM MẠI
+            const midPeakOffset = 0 * rightScale;     // Đỉnh chóp giữa chạm đúng viền trên (cao nhất)
+            const peakOffset = 1.5 * rightScale;      // 2 chóp bên chỉ thấp hơn chóp giữa xíu xiu
+            const valleyDepth = 2.5 * rightScale;     // Rãnh giữa rất nông, tạo thành lượn sóng êm ái
 
-            const totalWidth = shieldW + spaceWidth + idWidth + spaceWidth + verifiedWidth;
+            // Tọa độ bù trừ để giữ nguyên tuyệt đối vị trí cũ của khiên
+            const shieldYOffset = -3.25 * rightScale;
+
+            const totalWidth = sW + spaceWidth + idWidth + spaceWidth + verifiedWidth;
 
             ctx.save();
-            // CHỈNH SỬA Ở ĐÂY: Ép sát rạt lề phải (chỉ cách 6px)
-            ctx.translate(width - (6 * rightScale), height / 2);
-            ctx.rotate(-Math.PI / 2);
+            ctx.translate(width - (12 * rightScale), height / 2); 
+            ctx.rotate(-Math.PI / 2); 
 
-            let currentX = -totalWidth / 2;
+            let currentX = -totalWidth / 2; 
+            const cx = currentX + sW / 2; 
 
+            // 1. VẼ KHUNG KHIÊN 3 CHÓP MỀM MẠI
             ctx.beginPath();
-            ctx.moveTo(currentX + shieldW/2, 0); 
-            ctx.lineTo(currentX + shieldW, -shieldH * 0.4); 
-            ctx.lineTo(currentX + shieldW, -shieldH); 
-            ctx.lineTo(currentX, -shieldH); 
-            ctx.lineTo(currentX, -shieldH * 0.4); 
+            ctx.moveTo(cx - sW/2, shieldYOffset - sH/2 + peakOffset); 
+            ctx.lineTo(cx - sW/4, shieldYOffset - sH/2 + valleyDepth);
+            ctx.lineTo(cx, shieldYOffset - sH/2 + midPeakOffset); // Chóp giữa
+            ctx.lineTo(cx + sW/4, shieldYOffset - sH/2 + valleyDepth);
+            ctx.lineTo(cx + sW/2, shieldYOffset - sH/2 + peakOffset);
+            
+            ctx.bezierCurveTo(cx + sW/2, shieldYOffset + sH * 0.1, cx + sW * 0.35, shieldYOffset + sH/2, cx, shieldYOffset + sH/2);
+            ctx.bezierCurveTo(cx - sW * 0.35, shieldYOffset + sH/2, cx - sW/2, shieldYOffset + sH * 0.1, cx - sW/2, shieldYOffset - sH/2 + peakOffset);
             ctx.closePath();
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
-            ctx.lineWidth = 1.5 * rightScale;
+            
+            ctx.lineJoin = 'round'; // Làm bo góc mượt đỉnh chóp
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+            ctx.lineWidth = 1.8 * rightScale; 
             ctx.stroke();
 
+            // 2. VẼ DẤU TICK (✓) BÊN TRONG KHIÊN
             ctx.beginPath();
-            ctx.moveTo(currentX + shieldW * 0.25, -shieldH * 0.55);
-            ctx.lineTo(currentX + shieldW * 0.45, -shieldH * 0.35);
-            ctx.lineTo(currentX + shieldW * 0.75, -shieldH * 0.75);
+            ctx.moveTo(cx - sW * 0.18, shieldYOffset - sH * 0.02);
+            ctx.lineTo(cx - sW * 0.03, shieldYOffset + sH * 0.17);
+            ctx.lineTo(cx + sW * 0.24, shieldYOffset - sH * 0.15);
+            
+            ctx.lineCap = 'round';   
+            ctx.lineJoin = 'round';  
+            ctx.lineWidth = 2.0 * rightScale; 
             ctx.stroke();
             
-            currentX += shieldW; 
+            // Khôi phục mặc định nét cọ
+            ctx.lineCap = 'butt';
+            ctx.lineJoin = 'miter';
+            
+            currentX += sW; 
             currentX += spaceWidth; 
 
-            ctx.fillStyle = "rgba(255, 255, 255, 0.75)"; 
+            // 3. VẼ TEXT 
+            ctx.fillStyle = "rgba(255, 255, 255, 0.85)"; 
             ctx.textAlign = "left"; 
             ctx.textBaseline = "middle"; 
 
-            ctx.fillText(idText, currentX, -shieldH/2);
+            ctx.fillText(idText, currentX, 0); 
             currentX += idWidth; 
             currentX += spaceWidth; 
 
-            ctx.fillText(verifiedText, currentX, -shieldH/2);
+            ctx.fillText(verifiedText, currentX, 0);
 
             ctx.restore();
         }

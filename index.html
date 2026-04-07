@@ -116,7 +116,6 @@
     </div>
 
     <script>
-
         const uploadInput = document.getElementById('uploadInput');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -186,6 +185,7 @@
             const rightScale = baseScale * 0.7;
             const globalShadowBlur = parseInt(shadowBlurInput.value) * baseScale;
             
+            // Bóng hệ thống (sẽ bị tắt nếu người dùng bỏ check)
             if (shadowCheck.checked) {
                 ctx.shadowColor = "rgba(0, 0, 0, 0.85)"; ctx.shadowBlur = globalShadowBlur;
                 ctx.shadowOffsetX = 2 * baseScale; ctx.shadowOffsetY = 2 * baseScale;
@@ -208,7 +208,7 @@
             const lineYStart = timeY - (128 * leftScale);
             ctx.beginPath(); ctx.moveTo(lineX, lineYStart); ctx.lineTo(lineX, lineYStart + (105 * leftScale));
             ctx.lineWidth = 4 * leftScale; ctx.strokeStyle = "#fbbf24"; ctx.stroke();
-            const dateObj = new Date(dateInput.value);
+            const dateObj = new Date(dateInput.value || new Date().toISOString().split('T')[0]);
             ctx.font = `400 ${42.8 * leftScale}px 'Roboto Condensed'`;
             ctx.fillText(`${dateObj.getDate()} Tháng ${dateObj.getMonth() + 1}, ${dateObj.getFullYear()}`, lineX + (20 * leftScale), lineYStart + (43 * leftScale));
             ctx.font = `400 ${37.7 * leftScale}px 'Roboto Condensed'`; ctx.fillText(dayInput.value, lineX + (20 * leftScale), lineYStart + (112 * leftScale));
@@ -217,13 +217,15 @@
             ctx.textAlign = "left";  
             ctx.textBaseline = "alphabetic";
             
+            const rcScale = rightScale * 0.85;
+
             const sloganText = "100% Chân thực";
-            ctx.font = `400 ${24 * rightScale}px 'Roboto'`;
+            ctx.font = `400 ${24 * rcScale}px 'Roboto'`;
             const sloganWidth = ctx.measureText(sloganText).width;
             
-            const blockEndX = width - (50 * rightScale); 
+            const blockEndX = width - (35 * rightScale); 
             const startX = blockEndX - sloganWidth; 
-            const logoY = height - (70 * rightScale); 
+            const logoY = height - (50 * rightScale); 
             
             const baseSize = 50; 
             ctx.font = `700 ${baseSize}px 'Roboto'`;
@@ -234,6 +236,14 @@
             const scaleRatio = sloganWidth / baseTotalW; 
             const finalTmSize = baseSize * scaleRatio;   
             
+            ctx.save(); 
+
+            // LUÔN BẬT BÓNG ĐỔ CHO CỤM BÊN PHẢI (Tách biệt khỏi checkbox)
+            ctx.shadowColor = "rgba(0, 0, 0, 0.7)"; 
+            ctx.shadowBlur = 20;                     
+            ctx.shadowOffsetX = 0;                  
+            ctx.shadowOffsetY = 2 * baseScale;      
+
             ctx.font = `700 ${finalTmSize}px 'Roboto'`;
             ctx.fillStyle = "#fbbf24"; 
             ctx.fillText("Time", startX, logoY);
@@ -242,9 +252,11 @@
             ctx.fillStyle = "white"; 
             ctx.fillText("mark", startX + finalTimeW, logoY);
             
-            ctx.font = `400 ${24 * rightScale}px 'Roboto'`;
+            ctx.font = `400 ${24 * rcScale}px 'Roboto'`;
             ctx.fillStyle = "white";
-            ctx.fillText(sloganText, startX, logoY + (30 * rightScale));
+            ctx.fillText(sloganText, startX, logoY + (30 * rcScale));
+
+            ctx.restore(); 
 
             // --- BARCODE DỌC (Cạnh phải) ---
             if (!currentImage.markId) {
@@ -263,16 +275,13 @@
             const verifiedWidth = ctx.measureText(verifiedText).width;
             const idWidth = ctx.measureText(idText).width;
             
-            // THIẾT LẬP KÍCH THƯỚC KHIÊN (Đã thu nhỏ thêm 30%)
-            const sW = 15.5 * rightScale; // Bề rộng
-            const sH = 16.0 * rightScale; // Chiều cao
+            const sW = 15.5 * rightScale; 
+            const sH = 16.0 * rightScale; 
             
-            // CÁC CHÓP ĐƯỢC HẠ CỰC KỲ THẤP VÀ MỀM MẠI
             const midPeakOffset = 0 * rightScale;     
             const peakOffset = 1.0 * rightScale;      
             const valleyDepth = 1.8 * rightScale;     
 
-            // Tọa độ bù trừ để giữ nguyên tuyệt đối vị trí thẳng hàng với text
             const shieldYOffset = -2.5 * rightScale;
 
             const totalWidth = sW + spaceWidth + idWidth + spaceWidth + verifiedWidth;
@@ -288,7 +297,7 @@
             ctx.beginPath();
             ctx.moveTo(cx - sW/2, shieldYOffset - sH/2 + peakOffset); 
             ctx.lineTo(cx - sW/4, shieldYOffset - sH/2 + valleyDepth);
-            ctx.lineTo(cx, shieldYOffset - sH/2 + midPeakOffset); // Chóp giữa
+            ctx.lineTo(cx, shieldYOffset - sH/2 + midPeakOffset); 
             ctx.lineTo(cx + sW/4, shieldYOffset - sH/2 + valleyDepth);
             ctx.lineTo(cx + sW/2, shieldYOffset - sH/2 + peakOffset);
             
@@ -296,12 +305,12 @@
             ctx.bezierCurveTo(cx - sW * 0.35, shieldYOffset + sH/2, cx - sW/2, shieldYOffset + sH * 0.1, cx - sW/2, shieldYOffset - sH/2 + peakOffset);
             ctx.closePath();
             
-            ctx.lineJoin = 'round'; // Làm bo góc mượt đỉnh chóp
+            ctx.lineJoin = 'round'; 
             ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-            ctx.lineWidth = 1.5 * rightScale; // Nét thu nhỏ lại cho thanh mảnh
+            ctx.lineWidth = 1.5 * rightScale; 
             ctx.stroke();
 
-            // 2. VẼ DẤU TICK (✓) BÊN TRONG KHIÊN
+            // 2. VẼ DẤU TICK (✓)
             ctx.beginPath();
             ctx.moveTo(cx - sW * 0.18, shieldYOffset - sH * 0.02);
             ctx.lineTo(cx - sW * 0.03, shieldYOffset + sH * 0.17);
@@ -309,17 +318,16 @@
             
             ctx.lineCap = 'round';   
             ctx.lineJoin = 'round';  
-            ctx.lineWidth = 1.8 * rightScale; // Nét dấu tick cũng thu nhỏ lại
+            ctx.lineWidth = 1.8 * rightScale; 
             ctx.stroke();
             
-            // Khôi phục mặc định nét cọ
             ctx.lineCap = 'butt';
             ctx.lineJoin = 'miter';
             
             currentX += sW; 
             currentX += spaceWidth; 
 
-            // 3. VẼ TEXT 
+            // 3. VẼ TEXT DỌC
             ctx.fillStyle = "rgba(255, 255, 255, 0.85)"; 
             ctx.textAlign = "left"; 
             ctx.textBaseline = "middle"; 
@@ -340,17 +348,17 @@
             await ensureFontLoaded();
             imageList = [];
             for (const file of files) {
-                const img = await new Promise(res => {
+                const img = await new Promise((res) => {
                     const reader = new FileReader();
                     reader.onload = (ev) => { 
                         const i = new Image(); 
-                        i.crossOrigin = "anonymous";
                         i.onload = () => res(i); 
+                        i.onerror = () => res(null); 
                         i.src = ev.target.result; 
                     };
                     reader.readAsDataURL(file);
                 });
-                imageList.push(img);
+                if (img) imageList.push(img);
             }
             placeholderText.style.display = 'none'; canvas.style.display = 'block';
             drawCanvas(0); loader.style.display = 'none';
